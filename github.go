@@ -194,7 +194,7 @@ func (g *Github) buildAndExecRequest(method string, url string) []byte {
 }
 
 // Get repositories from the given url
-func (g *Github) GetRepos(url string) *[]*Repo {
+func (g *Github) GetRepos(url string) []*Repo {
 
 	contents := g.buildAndExecRequest("GET", url)
 
@@ -204,25 +204,25 @@ func (g *Github) GetRepos(url string) *[]*Repo {
 		fmt.Println("%s", err)
 	}
 
-	return &repos
+	return repos
 }
 
 // List all public repositories
-func (g *Github) Repos(user string) *[]*Repo {
+func (g *Github) Repos(user string) []*Repo {
 	url := apiUrl + repos
 
 	return g.GetRepos(url)
 }
 
 // List public repositories for the specified user.
-func (g *Github) UserRepos(user string) *[]*Repo {
+func (g *Github) UserRepos(user string) []*Repo {
 	url := apiUrl + strings.Replace(repos_user, ":user", user, -1)
 
 	return g.GetRepos(url)
 }
 
 // List repositories for the specified org.
-func (g *Github) OrgRepos(org string) *[]*Repo {
+func (g *Github) OrgRepos(org string) []*Repo {
 	url := apiUrl + strings.Replace(repos_org, ":org", org, -1)
 
 	return g.GetRepos(url)
