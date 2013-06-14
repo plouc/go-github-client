@@ -11,6 +11,9 @@ import (
 )
 
 const (
+
+	apiUrl = "https://api.github.com"
+
 	// Users
 	public_user_url  = "/users/:user"
 	current_user_url = "/user"
@@ -37,7 +40,6 @@ const (
 )
 
 type Github struct {
-	ApiUrl string
 	Client *http.Client
 }
 
@@ -165,12 +167,11 @@ type Event struct {
 	// @todo add payload field
 }
 
-func NewGithub(apiurl string) *Github {
+func NewGithub() *Github {
 
 	client := &http.Client{}
 
 	return &Github{
-		ApiUrl: apiurl,
 		Client: client,
 	}
 }
@@ -178,7 +179,7 @@ func NewGithub(apiurl string) *Github {
 func (g *Github) buildAndExecRequest(method string, url string) []byte {
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
-		panic("Error while building gitlab request")
+		panic("Error while building github request")
 	}
 
 	resp, err := g.Client.Do(req)
@@ -208,21 +209,21 @@ func (g *Github) GetRepos(url string) *[]*Repo {
 
 // List all public repositories
 func (g *Github) Repos(user string) *[]*Repo {
-	url := g.ApiUrl + repos
+	url := apiUrl + repos
 
 	return g.GetRepos(url)
 }
 
 // List public repositories for the specified user.
 func (g *Github) UserRepos(user string) *[]*Repo {
-	url := g.ApiUrl + strings.Replace(repos_user, ":user", user, -1)
+	url := apiUrl + strings.Replace(repos_user, ":user", user, -1)
 
 	return g.GetRepos(url)
 }
 
 // List repositories for the specified org.
 func (g *Github) OrgRepos(org string) *[]*Repo {
-	url := g.ApiUrl + strings.Replace(repos_org, ":org", org, -1)
+	url := apiUrl + strings.Replace(repos_org, ":org", org, -1)
 
 	return g.GetRepos(url)
 }
@@ -245,9 +246,76 @@ func (g *Github) GetEvents(url string) []*Event {
 	return events
 }
 
+// List public events
+func (g *Github) Events() []*Event {
+	url := apiUrl + events_url_public
+
+	return g.GetEvents(url)
+}
+
+// List repository events
+func (g *Github) RepoEvents(owner string, repo string) []*Event {
+	url := strings.Replace(events_url_repo, ":owner", owner, -1)
+	url = apiUrl + strings.Replace(url, ":repo", repo, -1)
+
+	return g.GetEvents(url)
+}
+
+// List issue events for a repository
+func (g *Github) RepoIssuesEvents(owner string, repo string) []*Event {
+	url := strings.Replace(events_url_repo_issues, ":owner", owner, -1)
+	url = apiUrl + strings.Replace(url, ":repo", repo, -1)
+
+	return g.GetEvents(url)
+}
+
+// List public events for a network of repositories
+func (g *Github) RepoNetworkEvents(owner string, repo string) []*Event {
+	url := strings.Replace(events_url_network_public, ":owner", owner, -1)
+	url = apiUrl + strings.Replace(url, ":repo", repo, -1)
+
+	return g.GetEvents(url)
+}
+
+// List events that a user has received
+func (g *Github) UserReceivedEvents(user string) []*Event {
+	url := apiUrl + strings.Replace(events_url_user_received, ":user", user, -1)
+
+	return g.GetEvents(url)
+}
+
+// List public events that a user has received
+func (g *Github) UserReceivedPublicEvents(user string) []*Event {
+	url := apiUrl + strings.Replace(events_url_user_received_public, ":user", user, -1)
+
+	return g.GetEvents(url)
+}
+
 // List events performed by a user
 func (g *Github) UserPerformedEvents(user string) []*Event {
-	url := g.ApiUrl + strings.Replace(events_url_user_performed, ":user", user, -1)
+	url := apiUrl + strings.Replace(events_url_user_performed, ":user", user, -1)
+
+	return g.GetEvents(url)
+}
+
+// List public events performed by a user
+func (g *Github) UserPerformedPublicEvents(user string) []*Event {
+	url := apiUrl + strings.Replace(events_url_user_performed_public, ":user", user, -1)
+
+	return g.GetEvents(url)
+}
+
+// List events for an organization
+func (g *Github) OrgEvents(user string, org string) []*Event {
+	url := strings.Replace(events_url_org, ":user", user, -1)
+	url = apiUrl + strings.Replace(url, ":org", org, -1)
+
+	return g.GetEvents(url)
+}
+
+// List public events for an organization
+func (g *Github) OrgPublicEvents(org string) []*Event {
+	url := apiUrl + strings.Replace(events_url_org_public, ":org", org, -1)
 
 	return g.GetEvents(url)
 }
