@@ -55,13 +55,17 @@ func (g *Github) GetRepos(url string) []*Repo {
 }
 
 // List all public repositories
-func (g *Github) Repos(user string) []*Repo {
+//
+//     repos := Github.GetRepos()
+func (g *Github) GetRepos() []*Repo {
 	url := apiUrl + repos
 
 	return g.GetRepos(url)
 }
 
 // List public repositories for the specified user.
+//
+//     repos := Github.UserRepos("plouc")
 func (g *Github) UserRepos(user string) []*Repo {
 	url := apiUrl + strings.Replace(repos_user, ":user", user, -1)
 
@@ -69,6 +73,8 @@ func (g *Github) UserRepos(user string) []*Repo {
 }
 
 // List repositories for the specified org.
+//
+//     repos := Github.OrgRepos("ekino")
 func (g *Github) OrgRepos(org string) []*Repo {
 	url := apiUrl + strings.Replace(repos_org, ":org", org, -1)
 
