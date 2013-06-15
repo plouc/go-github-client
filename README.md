@@ -54,4 +54,10 @@ To update `go-github-client`, use `go get -u`:
 ------
 
 
+Documentation
+=============
+
+Visit the docs at http://godoc.org/github.com/plouc/go-github-client
+
+
 
