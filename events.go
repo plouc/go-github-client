@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	"strconv"
 )
 
 const (
@@ -22,15 +23,39 @@ const (
 
 // Event struct
 type Event struct {
-	Id         string
-	Type       string
-	Public     bool
-	Repo       *SimpleRepo
-	Actor      *SimpleUser
-	Org        *SimpleUser
-	CreatedAt  time.Time
-	Created_at string
-	// @todo add payload field
+	Id                string
+	Type              string
+	Public            bool
+	Repo              *SimpleRepo
+	Actor             *SimpleUser
+	Org               *SimpleUser
+	CreatedAt         time.Time
+	Created_at        string
+	Payload           json.RawMessage
+	Created           *Creation
+	Pushed            *Push
+	PullRequestAction *PullRequestAction
+}
+
+type Push struct {
+	Head    string    // The SHA of the HEAD commit on the repository.
+	Ref     string    // The full Git ref that was pushed. Example: “refs/heads/master”
+	Size    int       // The number of commits in the push
+	Commits []*Commit // The list of pushed commits.
+}
+
+type PullRequestAction struct {
+	Action string // The action that was performed: “opened”, “closed”, “synchronize”, or “reopened”.
+	Number int    // The pull request number.
+	// @todo add pull_request object
+}
+
+// Represents a created repository, branch, or tag.
+type Creation struct {
+	Ref_Type      string // The object that was created: “repository”, “branch”, or “tag”
+	Ref           string // The git ref (or null if only a repository was created).
+	Master_Branch string // The name of the repository’s master branch.
+	Description   string // The repository’s current description.
 }
 
 func (e *Event) Message(me string) string {
@@ -46,11 +71,23 @@ func (e *Event) Message(me string) string {
 	default:
 		message = user + " - " + e.Type + " - " + e.Repo.Name
 	case "PushEvent":
-		message = user + " pushed to " + e.Repo.Name
+		message = user + " pushed " + strconv.Itoa(e.Pushed.Size) + " commit(s) to repository " + e.Repo.Name
 	case "PublicEvent":
-		message = user + " open sourced " + e.Repo.Name
+		message = user + " open sourced repository " + e.Repo.Name
+	case "PullRequestEvent":
+		message = user + " " + e.PullRequestAction.Action +
+		          " pull request #" + strconv.Itoa(e.PullRequestAction.Number) +
+				  " on repository " + e.Repo.Name
 	case "CreateEvent":
-		message = user + " created " + e.Repo.Name
+		message = user + " created " + e.Created.Ref_Type
+		if e.Created.Ref_Type == "repository" {
+			message = message + " " + e.Repo.Name
+		} else {
+			if e.Created.Ref_Type == "branch" {
+				message = message + " " + e.Created.Ref
+			}
+			message = message + " on repository " + e.Repo.Name
+		}
 	}
 
 	return message
@@ -69,6 +106,32 @@ func (g *Github) GetEvents(url string) []*Event {
 	for _, event := range events {
 		t, _ := time.Parse(dateLayout, event.Created_at)
     	event.CreatedAt = t
+
+    	switch event.Type {
+		default:
+		case "CreateEvent":
+			var created *Creation
+			err := json.Unmarshal(event.Payload, &created)
+			if err != nil {
+				fmt.Println("%s", err)
+			}
+			event.Created = created
+		case "PublicEvent":
+		case "PullRequestEvent":
+			var pullRequestAction *PullRequestAction
+			err := json.Unmarshal(event.Payload, &pullRequestAction)
+			if err != nil {
+				fmt.Println("%s", err)
+			}
+			event.PullRequestAction = pullRequestAction
+		case "PushEvent":
+			var pushed *Push
+			err := json.Unmarshal(event.Payload, &pushed)
+			if err != nil {
+				fmt.Println("%s", err)
+			}
+			event.Pushed = pushed
+		}    	
 	}
 
 	return events

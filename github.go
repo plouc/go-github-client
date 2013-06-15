@@ -34,13 +34,14 @@ type Tree struct {
 }
 
 type Commit struct {
-	Sha       string
-	Url       string
-	Author    *Author
+	Sha       string  // The SHA of the commit.
+	Url       string  // Points to the commit API resource.
+	Author    *Author // The git author of the commit.
 	Committer *Author
-	Message   string
+	Message   string  // The commit message.
 	Tree      *Tree
 	Parents   []*Tree
+	Distinct  bool    // (Available in PushEvent) Whether this commit is distinct from any that have been pushed before.
 }
 
 type Object struct {
@@ -115,6 +116,7 @@ func NewGithub() *Github {
 	}
 }
 
+// Build a request and execute it within the curent htto client end returns response content
 func (g *Github) buildAndExecRequest(method string, url string) []byte {
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
@@ -127,7 +129,6 @@ func (g *Github) buildAndExecRequest(method string, url string) []byte {
 	if err != nil {
 		fmt.Printf("%s", err)
 	}
-	//fmt.Println(string(contents))
 
 	return contents
 }
