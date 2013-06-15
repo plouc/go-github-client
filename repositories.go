@@ -57,7 +57,7 @@ func (g *Github) GetRepos(url string) []*Repo {
 // List all public repositories
 //
 //     repos := Github.GetRepos()
-func (g *Github) GetRepos() []*Repo {
+func (g *Github) Repos() []*Repo {
 	url := apiUrl + repos
 
 	return g.GetRepos(url)
