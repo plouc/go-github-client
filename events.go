@@ -33,6 +33,29 @@ type Event struct {
 	// @todo add payload field
 }
 
+func (e *Event) Message(me string) string {
+
+	var message string
+
+	user := e.Actor.Login
+	if me != "" && me == user {
+		user = "you"
+	}
+
+	switch e.Type {
+	default:
+		message = user + " - " + e.Type + " - " + e.Repo.Name
+	case "PushEvent":
+		message = user + " pushed to " + e.Repo.Name
+	case "PublicEvent":
+		message = user + " open sourced " + e.Repo.Name
+	case "CreateEvent":
+		message = user + " created " + e.Repo.Name
+	}
+
+	return message
+}
+
 // Get events from the given url
 func (g *Github) GetEvents(url string) []*Event {
 	contents := g.buildAndExecRequest("GET", url)
