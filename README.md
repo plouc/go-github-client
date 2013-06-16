@@ -4,8 +4,8 @@ go-github-client is a simple client to consume github API (V3).
 
 ##features
 
-*	###Events
-	see http://developer.github.com/v3/activity/events/
+*	
+	###Events [github api doc](http://developer.github.com/v3/activity/events/)
 	* list public events 
 	* list repository events
 	* list issue events for a repository
@@ -17,8 +17,8 @@ go-github-client is a simple client to consume github API (V3).
 	* list events for an organization
 	* list public events for an organization
 
-*	###Repositories
-	see http://developer.github.com/v3/repos/
+*	
+	###Repositories [github api doc](http://developer.github.com/v3/repos/)
 	* list all public repositories
 	* list public repositories for the specified user.
 	* list repositories for the specified org
