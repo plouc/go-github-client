@@ -71,7 +71,14 @@ func (e *Event) Message(me string) string {
 	default:
 		message = user + " - " + e.Type + " - " + e.Repo.Name
 	case "PushEvent":
-		message = user + " pushed " + strconv.Itoa(e.Pushed.Size) + " commit(s) to repository " + e.Repo.Name
+		message = user + " pushed " + strconv.Itoa(e.Pushed.Size) + " commit(s) to repository " + e.Repo.Name + " ("
+		for index, commit := range e.Pushed.Commits {
+			message = message + commit.Message
+			if index < e.Pushed.Size - 1 {
+				message = message + ", "
+			}
+		}
+		message = message + ")"
 	case "PublicEvent":
 		message = user + " open sourced repository " + e.Repo.Name
 	case "PullRequestEvent":
