@@ -19,7 +19,8 @@ const (
 )
 
 type Github struct {
-	Client *http.Client
+	apiUrl string
+	client *http.Client
 }
 
 type Author struct {
@@ -112,7 +113,8 @@ func NewGithub() *Github {
 	client := &http.Client{}
 
 	return &Github{
-		Client: client,
+		apiUrl: apiUrl,
+		client: client,
 	}
 }
 
@@ -123,7 +125,7 @@ func (g *Github) buildAndExecRequest(method string, url string) []byte {
 		panic("Error while building github request")
 	}
 
-	resp, err := g.Client.Do(req)
+	resp, err := g.client.Do(req)
 	defer resp.Body.Close()
 	contents, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

@@ -58,7 +58,7 @@ func (g *Github) GetRepos(url string) []*Repo {
 //
 //     repos := Github.GetRepos()
 func (g *Github) Repos() []*Repo {
-	url := apiUrl + repos
+	url := g.apiUrl + repos
 
 	return g.GetRepos(url)
 }
@@ -67,7 +67,7 @@ func (g *Github) Repos() []*Repo {
 //
 //     repos := Github.UserRepos("plouc")
 func (g *Github) UserRepos(user string) []*Repo {
-	url := apiUrl + strings.Replace(repos_user, ":user", user, -1)
+	url := g.apiUrl + strings.Replace(repos_user, ":user", user, -1)
 
 	return g.GetRepos(url)
 }
@@ -76,7 +76,7 @@ func (g *Github) UserRepos(user string) []*Repo {
 //
 //     repos := Github.OrgRepos("ekino")
 func (g *Github) OrgRepos(org string) []*Repo {
-	url := apiUrl + strings.Replace(repos_org, ":org", org, -1)
+	url := g.apiUrl + strings.Replace(repos_org, ":org", org, -1)
 
 	return g.GetRepos(url)
 }

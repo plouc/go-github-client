@@ -30,7 +30,7 @@ type Event struct {
 	Actor             *SimpleUser
 	Org               *SimpleUser
 	CreatedAt         time.Time
-	Created_at        string
+	CreatedAtRaw      string             `json:"created_at"`
 	Payload           json.RawMessage
 	Created           *Creation
 	Pushed            *Push
@@ -38,10 +38,11 @@ type Event struct {
 }
 
 type Push struct {
-	Head    string    // The SHA of the HEAD commit on the repository.
-	Ref     string    // The full Git ref that was pushed. Example: “refs/heads/master”
-	Size    int       // The number of commits in the push
-	Commits []*Commit // The list of pushed commits.
+	Head         string    // The SHA of the HEAD commit on the repository.
+	Ref          string    // The full Git ref that was pushed. Example: “refs/heads/master”
+	Size         int       // The number of commits in the push
+	DistinctSize int       `json:"distinct_size"`
+	Commits      []*Commit // The list of pushed commits.
 }
 
 type PullRequestAction struct {
@@ -52,10 +53,10 @@ type PullRequestAction struct {
 
 // Represents a created repository, branch, or tag.
 type Creation struct {
-	Ref_Type      string // The object that was created: “repository”, “branch”, or “tag”
-	Ref           string // The git ref (or null if only a repository was created).
-	Master_Branch string // The name of the repository’s master branch.
-	Description   string // The repository’s current description.
+	RefType      string `json:"ref_type"`      // The object that was created: “repository”, “branch”, or “tag”
+	Ref          string                        // The git ref (or null if only a repository was created).
+	MasterBranch string `json:"master_branch"` // The name of the repository’s master branch.
+	Description  string                        // The repository’s current description.
 }
 
 func (e *Event) Message(me string) string {
@@ -86,11 +87,11 @@ func (e *Event) Message(me string) string {
 		          " pull request #" + strconv.Itoa(e.PullRequestAction.Number) +
 				  " on repository " + e.Repo.Name
 	case "CreateEvent":
-		message = user + " created " + e.Created.Ref_Type
-		if e.Created.Ref_Type == "repository" {
+		message = user + " created " + e.Created.RefType
+		if e.Created.RefType == "repository" {
 			message = message + " " + e.Repo.Name
 		} else {
-			if e.Created.Ref_Type == "branch" {
+			if e.Created.RefType == "branch" {
 				message = message + " " + e.Created.Ref
 			}
 			message = message + " on repository " + e.Repo.Name
@@ -111,7 +112,7 @@ func (g *Github) GetEvents(url string) []*Event {
 	}
 
 	for _, event := range events {
-		t, _ := time.Parse(dateLayout, event.Created_at)
+		t, _ := time.Parse(dateLayout, event.CreatedAtRaw)
     	event.CreatedAt = t
 
     	switch event.Type {
@@ -146,7 +147,7 @@ func (g *Github) GetEvents(url string) []*Event {
 
 // List public events
 func (g *Github) Events() []*Event {
-	url := apiUrl + events_url_public
+	url := g.apiUrl + events_url_public
 
 	return g.GetEvents(url)
 }
@@ -154,7 +155,7 @@ func (g *Github) Events() []*Event {
 // List repository events
 func (g *Github) RepoEvents(owner string, repo string) []*Event {
 	url := strings.Replace(events_url_repo, ":owner", owner, -1)
-	url = apiUrl + strings.Replace(url, ":repo", repo, -1)
+	url = g.apiUrl + strings.Replace(url, ":repo", repo, -1)
 
 	return g.GetEvents(url)
 }
@@ -162,7 +163,7 @@ func (g *Github) RepoEvents(owner string, repo string) []*Event {
 // List issue events for a repository
 func (g *Github) RepoIssuesEvents(owner string, repo string) []*Event {
 	url := strings.Replace(events_url_repo_issues, ":owner", owner, -1)
-	url = apiUrl + strings.Replace(url, ":repo", repo, -1)
+	url = g.apiUrl + strings.Replace(url, ":repo", repo, -1)
 
 	return g.GetEvents(url)
 }
@@ -170,7 +171,7 @@ func (g *Github) RepoIssuesEvents(owner string, repo string) []*Event {
 // List public events for a network of repositories
 func (g *Github) RepoNetworkEvents(owner string, repo string) []*Event {
 	url := strings.Replace(events_url_network_public, ":owner", owner, -1)
-	url = apiUrl + strings.Replace(url, ":repo", repo, -1)
+	url = g.apiUrl + strings.Replace(url, ":repo", repo, -1)
 
 	return g.GetEvents(url)
 }
@@ -180,14 +181,14 @@ func (g *Github) RepoNetworkEvents(owner string, repo string) []*Event {
 // If you are authenticated as the given user, you will see private events.
 // Otherwise, you’ll only see public events.
 func (g *Github) UserReceivedEvents(user string) []*Event {
-	url := apiUrl + strings.Replace(events_url_user_received, ":user", user, -1)
+	url := g.apiUrl + strings.Replace(events_url_user_received, ":user", user, -1)
 
 	return g.GetEvents(url)
 }
 
 // List public events that a user has received
 func (g *Github) UserReceivedPublicEvents(user string) []*Event {
-	url := apiUrl + strings.Replace(events_url_user_received_public, ":user", user, -1)
+	url := g.apiUrl + strings.Replace(events_url_user_received_public, ":user", user, -1)
 
 	return g.GetEvents(url)
 }
@@ -196,14 +197,14 @@ func (g *Github) UserReceivedPublicEvents(user string) []*Event {
 // If you are authenticated as the given user, you will see your private events.
 // Otherwise, you’ll only see public events.
 func (g *Github) UserPerformedEvents(user string) []*Event {
-	url := apiUrl + strings.Replace(events_url_user_performed, ":user", user, -1)
+	url := g.apiUrl + strings.Replace(events_url_user_performed, ":user", user, -1)
 
 	return g.GetEvents(url)
 }
 
 // List public events performed by a user
 func (g *Github) UserPerformedPublicEvents(user string) []*Event {
-	url := apiUrl + strings.Replace(events_url_user_performed_public, ":user", user, -1)
+	url := g.apiUrl + strings.Replace(events_url_user_performed_public, ":user", user, -1)
 
 	return g.GetEvents(url)
 }
@@ -213,14 +214,14 @@ func (g *Github) UserPerformedPublicEvents(user string) []*Event {
 // You must be authenticated as the user to view this.
 func (g *Github) OrgEvents(user string, org string) []*Event {
 	url := strings.Replace(events_url_org, ":user", user, -1)
-	url = apiUrl + strings.Replace(url, ":org", org, -1)
+	url = g.apiUrl + strings.Replace(url, ":org", org, -1)
 
 	return g.GetEvents(url)
 }
 
 // List public events for an organization
 func (g *Github) OrgPublicEvents(org string) []*Event {
-	url := apiUrl + strings.Replace(events_url_org_public, ":org", org, -1)
+	url := g.apiUrl + strings.Replace(events_url_org_public, ":org", org, -1)
 
 	return g.GetEvents(url)
 }
