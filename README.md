@@ -32,15 +32,16 @@ To install go-github-client, use `go get`:
 
 Import the `go-github-client` package into your code:
 
-    package whatever
+```go
+package whatever
 
-    import (
-      "github.com/plouc/go-github-client"
-    )
+import (
+    "github.com/plouc/go-github-client"
+)
+```
 
     
 ##Update
-------
 
 To update `go-github-client`, use `go get -u`:
 
