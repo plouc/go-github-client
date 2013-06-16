@@ -1,4 +1,5 @@
 #go-github-client
+[![Build Status](https://travis-ci.org/plouc/go-github-client.png?branch=master)](https://travis-ci.org/plouc/go-github-client)
 
 go-github-client is a simple client to consume github API (V3).
 
