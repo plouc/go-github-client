@@ -24,14 +24,14 @@ type Github struct {
 }
 
 type Author struct {
-	Date  string
-	Name  string
-	Email string
+	Date  string `json:"date,omitempty"`
+	Name  string `json:"name,omitempty"`
+	Email string `json:"email,omitempty"`
 }
 
 type Tree struct {
-	Url string
-	Sha string
+	Url string `json:"url,omitempty"`
+	Sha string `json:"sha,omitempty"`
 }
 
 type Commit struct {
@@ -119,7 +119,7 @@ func NewGithub() *Github {
 }
 
 // Build a request and execute it within the curent htto client end returns response content
-func (g *Github) buildAndExecRequest(method string, url string) []byte {
+func (g *Github) buildAndExecRequest(method string, url string) ([]byte, error) {
 	req, err := http.NewRequest(method, url, nil)
 	if err != nil {
 		panic("Error while building github request")
@@ -132,5 +132,5 @@ func (g *Github) buildAndExecRequest(method string, url string) []byte {
 		fmt.Printf("%s", err)
 	}
 
-	return contents
+	return contents, err
 }

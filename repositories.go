@@ -41,42 +41,42 @@ type Repo struct {
 }
 
 // Get repositories from the given url
-func (g *Github) GetRepos(url string) []*Repo {
+func (g *Github) getRepos(url string) ([]*Repo, error) {
 
-	contents := g.buildAndExecRequest("GET", url)
+	contents, err := g.buildAndExecRequest("GET", url)
 
 	var repos []*Repo
-	err := json.Unmarshal(contents, &repos)
+	err = json.Unmarshal(contents, &repos)
 	if err != nil {
 		fmt.Println("%s", err)
 	}
 
-	return repos
+	return repos, err
 }
 
 // List all public repositories
 //
 //     repos := Github.GetRepos()
-func (g *Github) Repos() []*Repo {
+func (g *Github) Repos() ([]*Repo, error) {
 	url := g.apiUrl + repos
 
-	return g.GetRepos(url)
+	return g.getRepos(url)
 }
 
 // List public repositories for the specified user.
 //
 //     repos := Github.UserRepos("plouc")
-func (g *Github) UserRepos(user string) []*Repo {
+func (g *Github) UserRepos(user string) ([]*Repo, error) {
 	url := g.apiUrl + strings.Replace(repos_user, ":user", user, -1)
 
-	return g.GetRepos(url)
+	return g.getRepos(url)
 }
 
 // List repositories for the specified org.
 //
 //     repos := Github.OrgRepos("ekino")
-func (g *Github) OrgRepos(org string) []*Repo {
+func (g *Github) OrgRepos(org string) ([]*Repo, error) {
 	url := g.apiUrl + strings.Replace(repos_org, ":org", org, -1)
 
-	return g.GetRepos(url)
+	return g.getRepos(url)
 }

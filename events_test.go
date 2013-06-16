@@ -48,8 +48,9 @@ func TestEvents(t *testing.T) {
 
 	github := NewGithub()
 	github.apiUrl = ts.URL
-	events := github.Events()
+	events, err := github.Events()
 
+	assert.Equal(t, err, nil)
 	assert.Equal(t, len(events), 1)
 	assert.IsType(t, new(Event), events[0])
 	assert.Equal(t, events[0].Id, "0123456789")
