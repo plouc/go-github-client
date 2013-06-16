@@ -23,40 +23,40 @@ const (
 
 // Event struct
 type Event struct {
-	Id                string
-	Type              string
-	Public            bool
-	Repo              *SimpleRepo
-	Actor             *SimpleUser
-	Org               *SimpleUser
-	CreatedAt         time.Time
-	CreatedAtRaw      string             `json:"created_at"`
-	Payload           json.RawMessage
-	Created           *Creation
+	Id                string             `json:"id,omitempty"`
+	Type              string             `json:"type,omitempty"`
+	Public            bool               `json:"public,omitempty"`
+	Repo              *SimpleRepo        `json:"repo,omitempty"`
+	Actor             *SimpleUser        `json:"actor,omitempty"`
+	Org               *SimpleUser        `json:"org,omitempty"`
+	CreatedAt         time.Time 
+	CreatedAtRaw      string             `json:"created_at,omitempty"`
+	Payload           json.RawMessage    `json:"payload,omitempty"`
+	Created           *Creation        
 	Pushed            *Push
 	PullRequestAction *PullRequestAction
 }
 
 type Push struct {
-	Head         string    // The SHA of the HEAD commit on the repository.
-	Ref          string    // The full Git ref that was pushed. Example: “refs/heads/master”
-	Size         int       // The number of commits in the push
-	DistinctSize int       `json:"distinct_size"`
-	Commits      []*Commit // The list of pushed commits.
+	Head         string    `json:"head,omitempty"`          // The SHA of the HEAD commit on the repository.
+	Ref          string    `json:"ref,omitempty"`           // The full Git ref that was pushed. Example: “refs/heads/master”
+	Size         int       `json:"size,omitempty"`          // The number of commits in the push
+	DistinctSize int       `json:"distinct_size,omitempty"`
+	Commits      []*Commit `json:"commits,omitempty"`       // The list of pushed commits.
 }
 
 type PullRequestAction struct {
-	Action string // The action that was performed: “opened”, “closed”, “synchronize”, or “reopened”.
-	Number int    // The pull request number.
+	Action string `json:"action,omitempty"` // The action that was performed: “opened”, “closed”, “synchronize”, or “reopened”.
+	Number int    `json:"number,omitempty"` // The pull request number.
 	// @todo add pull_request object
 }
 
 // Represents a created repository, branch, or tag.
 type Creation struct {
-	RefType      string `json:"ref_type"`      // The object that was created: “repository”, “branch”, or “tag”
-	Ref          string                        // The git ref (or null if only a repository was created).
-	MasterBranch string `json:"master_branch"` // The name of the repository’s master branch.
-	Description  string                        // The repository’s current description.
+	RefType      string `json:"ref_type,omitempty"`      // The object that was created: “repository”, “branch”, or “tag”
+	Ref          string `json:"ref,omitempty"`           // The git ref (or null if only a repository was created).
+	MasterBranch string `json:"master_branch,omitempty"` // The name of the repository’s master branch.
+	Description  string `json:"description,omitempty"`   // The repository’s current description.
 }
 
 func (e *Event) Message(me string) string {
