@@ -39,7 +39,7 @@ func main() {
 	github := gogithub.NewGithub()
 
 	switch function {
-	case "events":
+	case "all":
 		events, err := github.Events()
 		if err != nil {
 			fmt.Println(err.Error())
@@ -50,7 +50,8 @@ func main() {
 		}
 	case "user_performed":
 		if user == "" {
-
+			fmt.Println("Please provide a user name within the -u argument")
+			return
 		}
 		events, err := github.UserPerformedEvents(user)
 		if err != nil {
