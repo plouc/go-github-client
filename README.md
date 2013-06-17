@@ -54,5 +54,15 @@ To update `go-github-client`, use `go get -u`:
 
 Visit the docs at http://godoc.org/github.com/plouc/go-github-client
 
+## Examples
+
+You can play with the examples located in the `examples` directory
+
+* [events](https://github.com/plouc/go-github-client/tree/master/examples/events)
+
+
+
+
+
 
 
