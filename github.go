@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 )
 
 const (
@@ -19,8 +20,9 @@ const (
 )
 
 type Github struct {
-	apiUrl string
-	client *http.Client
+	apiUrl    string
+	client    *http.Client
+	RateLimit *RateLimit
 }
 
 type Author struct {
@@ -61,29 +63,29 @@ type Tag struct {
 }
 
 type SimpleUser struct {
-	Login       string
-	Id          int
-	Avatar_url  string
-	Gravatar_id string
-	Url         string
+	Id          int    `json:"id"`
+	Login       string `json:"login"`
+	Avatar_url  string `json:"avatar_url"`
+	Gravatar_id string `json:"gravatar_id"`
+	Url         string `json:"url"`
 }
 
 type PublicUser struct {
 	SimpleUser
-	Name         string
-	Company      string
-	Blog         string
-	Location     string
-	Email        string
-	Hireable     bool
-	Bio          string
-	Public_repos int
-	Public_gists int
-	Followers    int
-	Following    int
-	Html_url     string
-	Created_at   string
-	Type         string
+	Name         string `json:"name"`
+	Company      string `json:"company"`
+	Blog         string `json:"blog"`
+	Location     string `json:"location"`
+	Email        string `json:"email"`
+	Hireable     bool   `json:"hireable"`
+	Bio          string `json:"bio"`
+	Public_repos int    `json:"public_repos"`
+	Public_gists int    `json:"public_gists"`
+	Followers    int    `json:"followers"`
+	Following    int    `json:"public_repos"`
+	Html_url     string `json:"html_url"`
+	Created_at   string `json:"created_at"`
+	Type         string `json:"type"`
 }
 
 type Plan struct {
@@ -104,17 +106,24 @@ type PrivateUser struct {
 }
 
 type SimpleRepo struct {
-	Id   int
-	Name string
-	Url  string
+	Id   int    `json:"id"`
+	Name string `json:"name"`
+	Url  string `json:"url"`
+}
+
+type RateLimit struct {
+	Limit     int64 `json:"limit"`
+	Remaining int64 `json:"remaining"`
+	Reset     int64 `json:"reset"`
 }
 
 func NewGithub() *Github {
 	client := &http.Client{}
 
 	return &Github{
-		apiUrl: apiUrl,
-		client: client,
+		apiUrl:    apiUrl,
+		client:    client,
+		RateLimit: &RateLimit{},
 	}
 }
 
@@ -127,6 +136,24 @@ func (g *Github) buildAndExecRequest(method string, url string) ([]byte, error) 
 
 	resp, err := g.client.Do(req)
 	defer resp.Body.Close()
+
+	if resp.StatusCode == 403 {
+		// @todo handle rate limit
+	}
+
+	limit, err := strconv.ParseInt(resp.Header.Get("X-RateLimit-Limit"), 10, 64)
+	if err == nil {
+		g.RateLimit.Limit = limit
+	}
+	remaining, err := strconv.ParseInt(resp.Header.Get("X-RateLimit-Remaining"), 10, 64) 
+	if err == nil {
+		g.RateLimit.Remaining = remaining
+	}
+	reset, err := strconv.ParseInt(resp.Header.Get("X-RateLimit-Reset"), 10, 64)
+	if err == nil {
+		g.RateLimit.Reset = reset	
+	}
+
 	contents, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		fmt.Printf("%s", err)
