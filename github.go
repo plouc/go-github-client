@@ -62,47 +62,11 @@ type Tag struct {
 	Object  *Object
 }
 
-type SimpleUser struct {
-	Id          int    `json:"id"`
-	Login       string `json:"login"`
-	Avatar_url  string `json:"avatar_url"`
-	Gravatar_id string `json:"gravatar_id"`
-	Url         string `json:"url"`
-}
-
-type PublicUser struct {
-	SimpleUser
-	Name         string `json:"name"`
-	Company      string `json:"company"`
-	Blog         string `json:"blog"`
-	Location     string `json:"location"`
-	Email        string `json:"email"`
-	Hireable     bool   `json:"hireable"`
-	Bio          string `json:"bio"`
-	Public_repos int    `json:"public_repos"`
-	Public_gists int    `json:"public_gists"`
-	Followers    int    `json:"followers"`
-	Following    int    `json:"public_repos"`
-	Html_url     string `json:"html_url"`
-	Created_at   string `json:"created_at"`
-	Type         string `json:"type"`
-}
-
 type Plan struct {
 	Name          string
 	Space         int
 	Collaborators int
 	Private_repos int
-}
-
-type PrivateUser struct {
-	PublicUser
-	Total_private_repos int
-	Owned_private_repos int
-	Private_gists       int
-	Disk_usage          int
-	Collaborators       int
-	Plan                *Plan
 }
 
 type SimpleRepo struct {
